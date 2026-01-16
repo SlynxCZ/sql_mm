@@ -50,6 +50,13 @@ MySQLConnection::~MySQLConnection()
         m_Terminate = false;
     }
 
+    while (!m_threadQueue.empty())
+    {
+        ThreadOperation* op = m_threadQueue.front();
+        m_threadQueue.pop();
+        delete op;
+    }
+
     while (!m_ThinkQueue.empty())
     {
         ThreadOperation *op = m_ThinkQueue.front();
@@ -81,6 +88,10 @@ void MySQLConnection::Query(char *query, QueryCallbackFunc callback)
     }
 
     TMySQLQueryOp *op = new TMySQLQueryOp(this, std::string(query), callback);
+
+    int t = sqlmm_timeout.GetInt();
+    if (t > 0)
+        op->timeout_ms = t * 1000;
 
     AddToThreadQueue(op);
 }
@@ -124,16 +135,22 @@ void MySQLConnection::Destroy()
 
 void MySQLConnection::RunFrame()
 {
-    if (!m_ThinkQueue.size())
-    {
-        return;
-    }
+    ThreadOperation* op = nullptr;
 
-    ThreadOperation *op;
     {
         std::lock_guard<std::mutex> lock(m_ThinkLock);
+        if (m_ThinkQueue.empty())
+            return;
+
         op = m_ThinkQueue.front();
         m_ThinkQueue.pop();
+    }
+
+    if (op->IsTimedOut())
+    {
+        op->OnTimeout();
+        delete op;
+        return;
     }
 
     op->RunThinkPart();
@@ -151,19 +168,22 @@ void MySQLConnection::ThreadRun()
 
     while (true)
     {
-        if (m_threadQueue.empty())
+        m_QueueEvent.wait(lock, [this]()
         {
-            if (m_Terminate)
-            {
-                return;
-            }
+            return m_Terminate || !m_threadQueue.empty();
+        });
 
-            m_QueueEvent.wait(lock);
-            continue;
-        }
+        if (m_Terminate)
+            break;
 
         ThreadOperation *op = m_threadQueue.front();
         m_threadQueue.pop();
+
+        if (op->IsTimedOut())
+        {
+            delete op;
+            continue;
+        }
 
         lock.unlock();
         op->RunThreadPart();
