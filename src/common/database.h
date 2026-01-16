@@ -1,4 +1,5 @@
 #pragma once
+#include "tier0/memdbgon.h"
 
 class ThreadOperation
 {
