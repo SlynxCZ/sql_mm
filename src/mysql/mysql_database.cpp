@@ -19,6 +19,7 @@
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "sql_mm.h"
 #include "mysql_database.h"
 #include "tier0/dbg.h"
 
