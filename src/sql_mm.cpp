@@ -27,6 +27,8 @@
 
 SH_DECL_HOOK1_void(IGameSystem, ServerGamePostSimulate, SH_NOATTRIB, 0, const EventServerGamePostSimulate_t *);
 
+CConVar<int> sqlmm_timeout("sqlmm_timeout", FCVAR_NONE, "SQL query timeout in seconds (0 = disabled)", 0);
+
 SQLPlugin g_SQLPlugin;
 IServerGameDLL *server = nullptr;
 IVEngineServer *engine = nullptr;

@@ -52,9 +52,9 @@ extern SQLPlugin g_SQLPlugin;
 
 PLUGIN_GLOBALVARS();
 
+extern CConVar<int> sqlmm_timeout;
+
 size_t UTIL_Format(char *buffer, size_t maxlength, const char *fmt, ...);
 unsigned int strncopy(char *dest, const char *src, size_t count);
-
-CConVar<int> sqlmm_timeout("sqlmm_timeout", FCVAR_NONE, "SQL query timeout in seconds (0 = disabled)", 0);
 
 #endif //_INCLUDE_METAMOD_SOURCE_STUB_PLUGIN_H_
