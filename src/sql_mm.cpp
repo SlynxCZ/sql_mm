@@ -91,6 +91,9 @@ bool SQLPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
         SH_MEMBER(this, &SQLPlugin::Hook_ServerGamePostSimulate), 
         true);
     // clang-format on
+
+    engine->ServerCommand("exec sql_mm/sql_mm");
+
     return true;
 }
 
