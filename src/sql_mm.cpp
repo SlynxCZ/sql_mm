@@ -69,6 +69,7 @@ bool SQLPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
     GET_V_IFACE_ANY(GetServerFactory, server, IServerGameDLL, INTERFACEVERSION_SERVERGAMEDLL);
     GET_V_IFACE_ANY(GetEngineFactory, g_pNetworkServerService, INetworkServerService, NETWORKSERVERSERVICE_INTERFACE_VERSION);
     GET_V_IFACE_CURRENT(GetFileSystemFactory, g_pFullFileSystem, IFileSystem, FILESYSTEM_INTERFACE_VERSION);
+	GET_V_IFACE_CURRENT(GetEngineFactory, g_pCVar, ICvar, CVAR_INTERFACE_VERSION);
 
     // Required to get the IMetamodListener events
     g_SMAPI->AddListener(this, this);
@@ -91,6 +92,8 @@ bool SQLPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
         SH_MEMBER(this, &SQLPlugin::Hook_ServerGamePostSimulate), 
         true);
     // clang-format on
+
+	META_CONVAR_REGISTER(FCVAR_RELEASE);
 
     engine->ServerCommand("exec sql_mm/sql_mm");
 
